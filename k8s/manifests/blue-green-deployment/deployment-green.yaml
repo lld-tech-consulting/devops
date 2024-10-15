@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-config-green
+  namespace: test-mock
+data:
+  initializerJson.json: |
+    [
+      {
+        "id": "1",
+        "priority": 1,
+        "httpRequest": {
+          "method": "GET",
+          "path": "/api/v1/route"
+        },
+        "httpResponse": {
+          "body": "{\"color\": \"green\"}",
+          "statusCode": 200
+        }
+      }
+    ]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-mock-green
+  namespace: test-mock
+  labels:
+    env: dev
+    app: mock
+    color: green
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-mock
+      image: mockserver
+      color: green
+  template:
+    metadata:
+      namespace: test-mock
+      labels:
+        app: test-mock
+        image: mockserver
+        env: dev
+        test: toto
+        color: green
+    spec:
+      containers:
+        - name: mockserver
+          image: mockserver/mockserver:latest
+          ports:
+            - containerPort: 1080
+          env:
+            - name: MOCKSERVER_WATCH_INITIALIZATION_JSON
+              value: "true"
+            - name: MOCKSERVER_INITIALIZATION_JSON_PATH
+              value: /etc/config/initializerJson.json
+          volumeMounts:
+            - name: mock-config-volume
+              mountPath: /etc/config/
+      volumes:
+        - name: mock-config-volume
+          configMap:
+            name: mock-config-green
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-mock-service-green
+  namespace: test-mock
+spec:
+  selector:
+    app: test-mock
+    env: dev
+    color: green
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 1080
+  type: ClusterIP

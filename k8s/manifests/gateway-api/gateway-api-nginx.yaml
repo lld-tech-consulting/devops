@@ -1,0 +1,18 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main-gateway-api
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: main-http
+    port: 80
+    protocol: HTTP
+    hostname: "*.lan"
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            main-http-gateway-access: "true"

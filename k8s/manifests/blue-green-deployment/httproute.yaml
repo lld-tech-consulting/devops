@@ -1,0 +1,25 @@
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: test-mock-httproute
+  namespace: test-mock
+spec:
+  parentRefs:
+    - name: main-gateway-api
+      namespace: infra
+      sectionName: main-http
+  hostnames:
+  - "test-mock.lan"
+  rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /api/v1/route
+      backendRefs:
+        - name: test-mock-service-blue
+          port: 80
+          weight: 90 
+        - name: test-mock-service-green
+          port: 80
+          weight: 10
