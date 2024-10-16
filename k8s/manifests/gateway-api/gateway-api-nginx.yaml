@@ -3,6 +3,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: main-gateway-api
+  namespace: infra
 spec:
   gatewayClassName: nginx
   listeners:
@@ -16,3 +17,18 @@ spec:
         selector:
           matchLabels:
             main-http-gateway-access: "true"
+  - name: main-https
+    port: 443
+    protocol: HTTPS
+    hostname: "*.lan"
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - kind: Secret
+          name: main-tls-secret
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            main-https-gateway-access: "true"

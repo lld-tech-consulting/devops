@@ -9,6 +9,9 @@ spec:
     - name: main-gateway-api
       namespace: infra
       sectionName: main-http
+    - name: main-gateway-api
+      namespace: infra
+      sectionName: main-https
   hostnames:
   - "test-mock.lan"
   rules:
